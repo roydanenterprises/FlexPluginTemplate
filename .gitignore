@@ -1,0 +1,6 @@
+**/node_modules/
+**/.vs/
+**/.twiliodeployinfo
+**/.env.dev
+**/.flexdev.env
+**/.idea
