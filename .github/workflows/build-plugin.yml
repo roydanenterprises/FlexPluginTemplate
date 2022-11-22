@@ -34,20 +34,24 @@ jobs:
 
         case "${{ github.ref_name }}" in
           testing*)
-            echo "::set-output name=publish::true"
-            echo "::set-output name=octopus_channel::Testing"
+            echo "publish=true" >> $GITHUB_OUTPUT
+            echo "octopus_channel=Testing" >> $GITHUB_OUTPUT
             ;;
           main)
-            echo "::set-output name=publish::true"
-            echo "::set-output name=octopus_channel::Production"
+            echo "publish=true" >> $GITHUB_OUTPUT
+            echo "octopus_channel=Production" >> $GITHUB_OUTPUT
             imageTags+=",latest"
             ;;
+          feature/build)
+            echo "publish=true" >> $GITHUB_OUTPUT
+            echo "octopus_channel=Testing" >> $GITHUB_OUTPUT
+            ;;
         esac
-        if [[ -d plugin ]]; then echo "::set-output name=pluginDir::true"; fi
-        if [[ -d serverless ]]; then echo "::set-output name=serverlessDir::true"; fi
-        echo "::set-output name=repoName::$( echo "${{github.event.repository.name}}" | tr '[:upper:]' '[:lower:]')"
-        echo "::set-output name=octopus_project::$( echo "${{github.event.repository.name}}" | cut -d '.' -f 1,2,3 --complement)"
-        echo "::set-output name=buildTags::"$imageTags""
+        if [[ -d plugin ]]; then echo "pluginDir=true" >> $GITHUB_OUTPUT; fi
+        if [[ -d serverless ]]; then echo "serverlessDir=true" >> $GITHUB_OUTPUT; fi
+        echo "repoName=$( echo "${{github.event.repository.name}}" | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+        echo "octopus_project=$( echo "${{github.event.repository.name}}" | cut -d '.' -f 1,2,3 --complement)" >> $GITHUB_OUTPUT
+        echo "buildTags="$imageTags"" >> $GITHUB_OUTPUT
     - name: Verify contents exist
       if: ${{ !steps.bash.outputs.pluginDir && !steps.bash.outputs.serverlessDir }}
       run: exit 1
@@ -56,15 +60,18 @@ jobs:
       id: plugin
       if: ${{ steps.bash.outputs.pluginDir }}
       run: |
+        npm ci --ignore-scripts
         npm version ${{ steps.gitversion.outputs.nuGetVersion }}
-        echo "::set-output name=packageName::$(cut -d "=" -f 2 <<< $(npm run env | grep "npm_package_name"))"
+        echo "packageName=$(cut -d "=" -f 2 <<< $(npm run env | grep "npm_package_name"))" >> $GITHUB_OUTPUT
       working-directory: ./plugin
+
     - name: Patch serverless
       id: serverless
       if: ${{ steps.bash.outputs.serverlessDir }}
       run: |
+        npm ci --ignore-scripts
         npm version ${{ steps.gitversion.outputs.nuGetVersion }}
-        echo "::set-output name=packageName::$(cut -d "=" -f 2 <<< $(npm run env | grep "npm_package_name"))"
+        echo "packageName=$(cut -d "=" -f 2 <<< $(npm run env | grep "npm_package_name"))" >> $GITHUB_OUTPUT
       working-directory: ./serverless
 
     - name: Create and push container image
