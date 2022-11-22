@@ -42,10 +42,6 @@ jobs:
             echo "octopus_channel=Production" >> $GITHUB_OUTPUT
             imageTags+=",latest"
             ;;
-          feature/build)
-            echo "publish=true" >> $GITHUB_OUTPUT
-            echo "octopus_channel=Testing" >> $GITHUB_OUTPUT
-            ;;
         esac
         if [[ -d plugin ]]; then echo "pluginDir=true" >> $GITHUB_OUTPUT; fi
         if [[ -d serverless ]]; then echo "serverlessDir=true" >> $GITHUB_OUTPUT; fi
