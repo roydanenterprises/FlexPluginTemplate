@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+if [[ -d plugin ]];
+    then cd plugin && npm run run-prettier
+fi
+
+if [[ -d serverless ]];
+    then cd serverless && npm run run-prettier
+fi
