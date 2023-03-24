@@ -1,17 +1,18 @@
-assembly-informational-format: '{NuGetVersion}+Sha.{Sha}'
-mode: ContinuousDeployment
+assembly-informational-format: "{NuGetVersion}+Sha.{Sha}"
+mode: Mainline
 branches:
   testing:
+    mode: ContinuousDeployment
     tag: testing
     tag-number-pattern: '[/-](sprint)?(?<number>\d+)'
     regex: testing[/-]
     source-branches:
-    - develop
+      - develop
   feature:
     increment: Minor
     regex: feature[/-]
     source-branches:
-    - develop
+      - develop
 ignore:
   sha: []
 merge-message-formats: {}

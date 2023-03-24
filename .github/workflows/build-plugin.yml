@@ -18,12 +18,12 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v0.9.15
+        uses: gittools/actions/gitversion/setup@v0.9.7
         with:
           versionSpec: "5.x"
       - name: Determine version
         id: gitversion
-        uses: gittools/actions/gitversion/execute@v0.9.15
+        uses: gittools/actions/gitversion/execute@v0.9.7
         with:
           useConfigFile: true
       - name: Calculate steps
@@ -92,26 +92,30 @@ jobs:
                -H 'Content-Type: application/json' \
                -d "{\"patch\":[{\"op\": \"replace\", \"path\": \"/name\", \"value\": \"Plugin: $name\"}]}"
 
+      - name: Install Octopus CLI
+        if: ${{ steps.bash.outputs.publish }}
+        uses: OctopusDeploy/install-octopus-cli-action@v1
+        with:
+          version: latest
+
       - name: Publish Build Information
         if: ${{ steps.bash.outputs.publish }}
-        uses: OctopusDeploy/push-build-information-action@v3
+        uses: OctopusDeploy/push-build-information-action@v1
         env:
-          OCTOPUS_URL: https://roydan.octopus.app
-          OCTOPUS_SPACE: NexTask
           OCTOPUS_API_KEY: ${{ secrets.OCTOPUS_API_KEY }}
+          OCTOPUS_HOST: https://roydan.octopus.app
+          OCTOPUS_SPACE: NexTask
         with:
           packages: "${{ steps.bash.outputs.repoName }}"
           version: "${{ steps.gitversion.outputs.nuGetVersion }}"
           overwrite_mode: IgnoreIfExists
-
       - name: Create a release in Octopus Deploy
         if: ${{ steps.bash.outputs.publish }}
-        uses: OctopusDeploy/create-release-action@v3
-        env:
-          OCTOPUS_URL: https://roydan.octopus.app
-          OCTOPUS_SPACE: NexTask
-          OCTOPUS_API_KEY: ${{ secrets.OCTOPUS_API_KEY }}
+        uses: OctopusDeploy/create-release-action@v1.1.3
         with:
+          server: https://roydan.octopus.app
+          space: NexTask
+          api_key: ${{ secrets.OCTOPUS_API_KEY }}
           project: ${{ steps.bash.outputs.octopus_project }}
           channel: ${{ steps.bash.outputs.octopus_channel }}
           packages: "${{ steps.bash.outputs.repoName }}:${{ steps.gitversion.outputs.nuGetVersion }}"
