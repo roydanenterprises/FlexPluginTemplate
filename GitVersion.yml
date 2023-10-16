@@ -1,5 +1,5 @@
 assembly-informational-format: "{NuGetVersion}+Sha.{Sha}"
-mode: Mainline
+mode: ContinuousDelivery
 branches:
   testing:
     mode: ContinuousDeployment
@@ -9,6 +9,7 @@ branches:
     source-branches:
       - develop
   feature:
+    mode: ContinuousDeployment
     increment: Minor
     regex: feature[/-]
     source-branches:
