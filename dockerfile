@@ -1,4 +1,4 @@
-FROM roydan.azurecr.io/nextask.utility.deployment.pluginservice:latest
+FROM roydan.azurecr.io/twilio.cli:latest
 ARG REPO_NAME
 ENV Settings__RepoName=$REPO_NAME
 
